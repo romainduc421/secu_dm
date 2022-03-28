@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math3.special.Erf;
-
 public class Main {
 
-    static int sVN = 1315;
-    static int sSTM = 1923122;
-    static int sRANDU = 2920192;
+    static int sVN = 5;
+    static int sSTM = 5;
+    static int sRANDU = 5;
 
     /**
      * Cette fonction applique l'algorithme de Von Neumann à un entier. Elle prends une graine en entrée et retourne
@@ -36,28 +34,30 @@ public class Main {
     }
 
     /**
-     *
-     * @param graine Graine du RNG Standard Minimal
-     * @return valeur courante obtenue par l'algo de congruence linéaire Standard Minimal
+     * Cette fonction applique l'algorithme STM à un entier. Elle prends une graine en entrée et retourne
+     * l'entier correspondant en sortie.
+     * @param graine Graine du générateur.
+     * @return Valeur courante obtenue par l'algorithme STM.
      */
     public static int STM(int graine){
         int res;
-        res = (graine*16807) % (int)(Math.pow(2,31)-1);
+        /* a = 16807, b = 0, m = 2^31 - 1 */
+        res = Math.floorMod(graine*16807, (int) (Math.pow(2,31)-1)); // %2^31 = 2 147 483 648
         return res;
     }
 
     /**
-     *
-     * @param graine Graine du RNG randu
-     * @return Valeur courante obtenue par l'algo de congruence linéaire RANDU
+     * Cette fonction applique l'algorithme RANDU à un entier. Elle prends une graine en entrée et retourne
+     * l'entier correspondant en sortie.
+     * @param graine Graine du générateur.
+     * @return Valeur courante obtenue par l'algorithme RANDU.
      */
-    public static int RANDU(int graine)
-    {
+    public static int RANDU(int graine){
         int res;
-        res = (graine*65539) % (int)Math.pow(2, 31);    // %2^31 = 2147483648
+        /* a = 65539, b = 0, m = 2^31 - 1 */
+        res = Math.floorMod(graine*65539, (int)Math.pow(2, 31)); // %2^31 = 2 147 483 648
         return res;
     }
-
 
     public static double frequency(List<Integer> x, int nb){
         /*int i,j;
@@ -67,7 +67,6 @@ public class Main {
         int bit;
         for(i=0; i<x.size(); i++){
             word = x.get(i);
-
             for (j=0; j<64; j++){
                 bit = (word <<(63-j));
                 System.out.println(bit);
@@ -99,62 +98,42 @@ public class Main {
     }
 
 
+
+    /**
+     * Main permetant d'executer les tests.
+     * @param args
+     */
     public static void main(String[] args) {
 
-        int res;
-        int l,k;
-        Random rand = new Random(), rand2 = new Random(1315);
-        List<Integer> values = new ArrayList<>(1000);
-        System.out.println("Test avec la graine de vonNeuman: "+sVN);
 
-        for(k=0; k<1000; k++)
-        {
-            res = vonNeuman(sVN);
-            sVN = rand.nextInt((int) (Math.pow(2,31) ));
-            values.add(res);
+        /* Liste pour stocker les résultats des tests */
+        ArrayList<Integer> listeVonNeuman = new ArrayList<>();
+        ArrayList<Integer> listeSTM = new ArrayList<>();
+        ArrayList<Integer> listeRANDU = new ArrayList<>();
+        ArrayList<Integer> listeRAND = new ArrayList<>();
+        /* Generateur Random de Java*/
+        int resRand;
+        Random rand = new Random();
+
+        /* Test visuel pour 1 000 valeurs */
+        System.out.println("----- \nTest avec 1000 valeurs\n-----");
+        for(int i = 0; i<1000;i++){
+            /* VonNeuman */
+            sVN = vonNeuman(sVN);
+            listeVonNeuman.add(sVN);
+            /* STM */
+            sSTM = STM(sSTM);
+            listeSTM.add(sSTM);
+            /* RANDU */
+            sRANDU = RANDU(sRANDU);
+            listeRANDU.add(sRANDU);
+            /* RAND JAVA */
+            resRand = rand.nextInt((int) Math.pow(2,31));
+            listeRAND.add(resRand);
         }
-        System.out.println(values);
-        values.removeAll(values);
-
-        System.out.println("Test avec la graine de vonNeumann dans l'ordre: "+sVN);
-        for(k=0; k<1000; k++)
-        {
-            res = vonNeuman(sVN);
-            sVN = k;
-            values.add(res);
-        }
-        System.out.println(values);
-        values.removeAll(values);
-
-
-        System.out.println("Test avec la graine de STM: "+sSTM);
-        for(k=0; k<1000; k++)
-        {
-            res = STM(sSTM) ;
-            sSTM = rand.nextInt((int) (Math.pow(2,31) )) & 0xffff;
-            values.add(Math.abs(res));
-        }
-        System.out.println(values);
-        values.removeAll(values);
-
-        System.out.println("Test avec la graine de RANDU: "+sRANDU);
-        for(k=0; k<1000; k++)
-        {
-            res = RANDU(sRANDU) ;
-            sRANDU = rand.nextInt((int) (Math.pow(2,31) )) & 0xffff;
-            values.add(Math.abs(res));
-        }
-        System.out.println(values);
-        values.removeAll(values);
-
-        System.out.println("Test avec RAND: ");
-        for(k=0; k<1000; k++)
-        {
-            res = rand2.nextInt((int) Math.pow(2,31));
-            values.add(res);
-        }
-        System.out.println(values);
-        values.removeAll(values);
-
+        System.out.println("VonNeuman: \n"+listeVonNeuman+"\n");
+        System.out.println("STM: \n"+listeSTM+"\n");
+        System.out.println("RANDU: \n"+listeRANDU+"\n");
+        System.out.println("RAND: \n"+listeRAND+"\n");
     }
 }

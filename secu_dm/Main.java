@@ -54,31 +54,75 @@ public class Main {
      * @param graine Graine du générateur.
      * @return Valeur courante obtenue par l'algorithme RANDU.
      */
-    public static int RANDU(int graine){
+    public static int randu(int graine){
         int res;
         /* a = 65539, b = 0, m = 2^31 - 1 */
         res = Math.floorMod(graine*65539, (int)Math.pow(2, 31)); // %2^31 = 2 147 483 648
         return res;
     }
 
-    public static double frequency(List<Integer> x, int nb){
-        /*int i,j;
-        double p_value, sobs;
-        int s=0;
-        int word;
-        int bit;
-        for(i=0; i<x.size(); i++){
-            word = x.get(i);
-            for (j=0; j<64; j++){
-                bit = (word <<(63-j));
-                System.out.println(bit);
-                bit >>= 63;
-                s +=  (2*bit - 1);
+    /**
+     * Cette fonction permet de transformer un Integer en forme binaire de nbBits bits sous forme d'un String
+     * @param nbBits nombre de bit binaire
+     * @param n valeur decimal du nombre a convertir
+     * @return Un string correspondant au nombre en base 2
+     */
+    public static String toBinary(int nbBits, int n){
+        String binaire = "";
+        for(int i = nbBits-1; i >= 0;i--){
+            if(n >= Math.pow(2,i) ){
+                n = (int) (n - Math.pow(2,i));
+                binaire += "1";
+            } else {
+                binaire += "0";
             }
         }
-        sobs = Math.abs(s) / Math.sqrt(nb);
-        p_value = Erf.erfc(sobs / Math.sqrt(2.0));
-        return p_value;*/return 0.0;
+        return binaire;
+    }
+
+
+    /**
+     * Fonction qui retourne la p-valeur d'une séquence d'Integer codé sous nb bits.
+     * @param x vecteur contenant les nombres de la séquence
+     * @param nb nombre de bit codant les entiers
+     * @return p-valeur
+     */
+    public static double frequency(ArrayList<Integer> x, int nb){
+        /* On va stocker les mots binaires sous forme de boolean pour gagner en efficacité */
+        ArrayList<Boolean> epsilon = new ArrayList<>();
+        /* String contenant la convertion en binaire de nb Bits */
+        String mot;
+        /* Pour chaque Integer i du vecteur x */
+        for (Integer i:x) {
+            /* Transforme i en mot de nb bits */
+            mot = toBinary(nb,i);
+            /* Ajouter le mot a la suite de epsilon (1 = true, 0 = false) */
+            for(int j = 0;j < mot.length();j++){
+                if(mot.charAt(j)=='0'){
+                    epsilon.add(false);
+                } else {
+                    epsilon.add(true);
+                }
+            }
+        }
+        /* Calcul de SN */
+        int sn = 0;
+        /* Si le bit est un 1, on fait +1, sinon on fait -1 */
+        for (Boolean b:epsilon) {
+            if(b){
+                sn++;
+            } else {
+                sn--;
+            }
+        }
+        /* Calcul de sobs */
+        double sobs = Math.abs(sn) / Math.sqrt(nb*x.size());
+
+
+        /* Calcul de Pvaleur */
+        /* double pValue = 2 * (1 - cdf('Normal', sobs)) */
+        //return pValue
+        return sobs;
     }
 
     public static double frequencyVN(List<Integer> x, int nb){
@@ -99,7 +143,7 @@ public class Main {
         return p_value;*/return 0.0;
     }
 
-    public double Exponentielle(double lambda) {
+    public static double exponentielle(double lambda) {
         Random rand = new Random();
         return -(1 / lambda) * log( 1 - rand.nextDouble() );
     }
@@ -117,9 +161,11 @@ public class Main {
         ArrayList<Integer> listeSTM = new ArrayList<>();
         ArrayList<Integer> listeRANDU = new ArrayList<>();
         ArrayList<Integer> listeRAND = new ArrayList<>();
+        ArrayList<Double> listeExp = new ArrayList<>();
         /* Generateur Random de Java*/
         int resRand;
         Random rand = new Random();
+        double resExp;
 
         /* Test visuel pour 1 000 valeurs */
         System.out.println("----- \nTest avec 1000 valeurs\n-----");
@@ -131,15 +177,28 @@ public class Main {
             sSTM = STM(sSTM);
             listeSTM.add(sSTM);
             /* RANDU */
-            sRANDU = RANDU(sRANDU);
+            sRANDU = randu(sRANDU);
             listeRANDU.add(sRANDU);
             /* RAND JAVA */
             resRand = rand.nextInt((int) Math.pow(2,31));
             listeRAND.add(resRand);
+            /* Exp */
+            resExp = exponentielle(1.0);
+            listeExp.add(resExp);
+
         }
         System.out.println("VonNeuman: \n"+listeVonNeuman+"\n");
         System.out.println("STM: \n"+listeSTM+"\n");
         System.out.println("RANDU: \n"+listeRANDU+"\n");
         System.out.println("RAND: \n"+listeRAND+"\n");
+        System.out.println("EXP: \n"+listeExp+"\n");
+
+        ArrayList<Integer> test = new ArrayList<>();
+        test.add(725);
+        double restest = frequency(test,10);
+        System.out.println(restest);
+
     }
+
+
 }

@@ -1,10 +1,12 @@
 package secu_dm;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static java.lang.Math.log;
+import static java.lang.Math.*;
+import static org.apache.commons.math3.special.Erf.erfc;
 
 public class Main {
 
@@ -87,11 +89,16 @@ public class Main {
      * @param nb nombre de bit codant les entiers
      * @return p-valeur
      */
-    public static double frequency(ArrayList<Integer> x, int nb){
+    public static double frequency(ArrayList<Integer> x, int nb)
+    {
         /* On va stocker les mots binaires sous forme de boolean pour gagner en efficacité */
         ArrayList<Boolean> epsilon = new ArrayList<>();
         /* String contenant la convertion en binaire de nb Bits */
         String mot;
+        if(x.isEmpty()){
+            System.err.println("MonobitFrequencyTest : first arg's wrong");
+            return -1.0;
+        }
         /* Pour chaque Integer i du vecteur x */
         for (Integer i:x) {
             /* Transforme i en mot de nb bits */
@@ -116,16 +123,65 @@ public class Main {
             }
         }
         /* Calcul de sobs */
-        double sobs = Math.abs(sn) / Math.sqrt(nb*x.size());
+        double sobs = abs(sn) / sqrt(nb*x.size());
 
 
         /* Calcul de Pvaleur */
         /* double pValue = 2 * (1 - cdf('Normal', sobs)) */
-        //return pValue
-        return sobs;
+        double pValue = erfc(sobs / sqrt(2.0));
+        return pValue;
+        //return sobs;
     }
 
-    public static double frequencyVN(List<Integer> x, int nb){
+    public static double runs(ArrayList<Integer> x, int nb)
+    {
+        /* On va stocker les mots binaires sous forme de boolean pour gagner en efficacité */
+        ArrayList<Boolean> epsilon = new ArrayList<>();
+        /* String contenant la convertion en binaire de nb Bits */
+        String mot;
+        if(x.isEmpty()){
+            System.err.println("MonobitFrequencyTest : first arg's wrong");
+            return -1.0;
+        }
+        /* Pour chaque Integer i du vecteur x */
+        for (Integer i:x)
+        {
+            /* Transforme i en mot de nb bits */
+            mot = toBinary(nb,i);
+            /* Ajouter le mot a la suite de epsilon (1 = true, 0 = false) */
+            for(int j = 0;j < mot.length();j++){
+                if(mot.charAt(j)=='0'){
+                    epsilon.add(false);
+                } else {
+                    epsilon.add(true);
+                }
+            }
+        }
+        double Pi=0;
+        int Vn_obs=1;
+        int taille = epsilon.size();
+        if(taille==10)
+            System.out.println(taille);
+        for (Boolean aBoolean : epsilon) {
+            if (aBoolean)
+                Pi++;
+        }
+
+        Pi/=taille;
+        if(abs(Pi-0.5) >= (2.0/ sqrt(taille))) return 0.0;
+
+        for(int l=0; l<taille-1; l++)
+            if(epsilon.get(l) != epsilon.get(l+1))
+                Vn_obs+=1;
+
+        if(taille==10) {
+            System.out.println("V" + taille + "_obs = " + Vn_obs);
+            System.out.println("Pi = " + Pi);
+        }
+        return erfc(abs(Vn_obs - 2.0 * taille * Pi *(1.0 - Pi)) / (2.0 * sqrt(taille) * Pi * (1.0 - Pi)) /sqrt(2));
+    }
+
+    public static double frequencyVN(ArrayList<Integer> x, int nb){
         /*int i,j;
         double p_value, sobs;
         int s=0;
@@ -193,10 +249,67 @@ public class Main {
         System.out.println("RAND: \n"+listeRAND+"\n");
         System.out.println("EXP: \n"+listeExp+"\n");
 
+        System.out.println("********* VonNeumann **********");
+        for(int k=0; k<100; k++)
+        {
+            System.out.println("\n ---- Iteration "+k+" ----");
+            listeVonNeuman.removeAll(listeVonNeuman);
+            for(int l=0; l<1000; l++) {
+                sVN = vonNeuman(sVN);
+                listeVonNeuman.add(sVN);
+            }
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,14)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,14)));
+            //2^(13.2877124) = 10 000
+        }
+
+        System.out.println("********* Standard Minimal **********");
+        for(int k=0; k<100; k++)
+        {
+            System.out.println("\n ---- Iteration "+k+" ----");
+            listeSTM.removeAll(listeSTM);
+            for(int l=0; l<1000; l++) {
+                sSTM = STM(sSTM);
+                listeSTM.add(sSTM);
+            }
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,32)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,32)));
+        }
+
+        System.out.println("********* RANDU **********");
+        for(int k=0; k<100; k++)
+        {
+            System.out.println("\n ---- Iteration "+k+" ----");
+            listeRANDU.removeAll(listeRANDU);
+            for(int l=0; l<1000; l++) {
+                sRANDU = randu(sRANDU);
+                listeRANDU.add(sRANDU);
+            }
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRANDU,32)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRANDU,32)));
+        }
+
+        System.out.println("********* RAND **********");
+        for(int k=0; k<100; k++)
+        {
+            System.out.println("\n ---- Iteration "+k+" ----");
+            listeRAND.removeAll(listeRAND);
+            for(int l=0; l<1000; l++) {
+                resRand = rand.nextInt((int) Math.pow(2,31));
+                listeRAND.add(resRand);
+            }
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRAND,32)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRAND,32)));
+        }
+
         ArrayList<Integer> test = new ArrayList<>();
-        test.add(725);
+        test.add(725);  //1011010101
         double restest = frequency(test,10);
-        System.out.println(restest);
+        System.out.println("\n\nTest de l'enonce freqency : "+(new DecimalFormat("0.0000000")).format(restest));
+
+        test.removeAll(test);
+        test.add(619);  //1001101011
+        System.out.println("\n\nTest de l'enonce runs : "+(new DecimalFormat("0.0000000")).format(runs(test,10)));
 
     }
 

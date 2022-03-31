@@ -1,5 +1,9 @@
 package secu_dm;
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -201,7 +205,7 @@ public class Main {
 
     public static double exponentielle(double lambda) {
         Random rand = new Random();
-        return -(1 / lambda) * log( 1 - rand.nextDouble() );
+        return -(1 / lambda) * log(1 - rand.nextDouble());
     }
 
 
@@ -210,6 +214,14 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream("test.txt");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        PrintStream printStream = new PrintStream(fos);
+        System.setOut(printStream);
 
 
         /* Liste pour stocker les résultats des tests */
@@ -239,7 +251,7 @@ public class Main {
             resRand = rand.nextInt((int) Math.pow(2,31));
             listeRAND.add(resRand);
             /* Exp */
-            resExp = exponentielle(1.0);
+            resExp = exponentielle(0.35);
             listeExp.add(resExp);
 
         }

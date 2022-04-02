@@ -19,7 +19,7 @@ public class Main {
     static int sSTM = 5;
     static int sRANDU = 5;
     public static int cpt=0;
-    public static boolean ontime=false;
+    //public static boolean ontime=false;
 
     /**
      * Cette fonction applique l'algorithme de Von Neumann à un entier. Elle prends une graine en entrée et retourne
@@ -260,7 +260,7 @@ public class Main {
         /* Generateur Random de Java*/
         int resRand;
 
-        //Random rand = new Random(55L);
+        Random rand = new Random();
         double resExp;
 
         /* Test visuel pour 1 000 valeurs */
@@ -276,8 +276,8 @@ public class Main {
             sRANDU = randu(sRANDU);
             listeRANDU.add(sRANDU);
             /* RAND JAVA */
-            //resRand = rand.nextInt((int) Math.pow(2,31));
-            resRand = getRandomNumber(0, (int) (pow(2,31)-1));
+            resRand = rand.nextInt((int) Math.pow(2,31));
+            //resRand = getRandomNumber(0, (int) (pow(2,31)-1));
             listeRAND.add(resRand);
             /* Exp */
             resExp = exponentielle(0.35);
@@ -340,8 +340,8 @@ public class Main {
             System.out.println("\n ---- Iteration "+k+" ----");
             listeRAND.removeAll(listeRAND);
             for(int l=0; l<1000; l++) {
-                //resRand = rand.nextInt((int) Math.pow(2,31));
-                resRand = getRandomNumber(0, (int) (pow(2,31)-1));
+                resRand = rand.nextInt((int) Math.pow(2,31));
+                //resRand = getRandomNumber(0, (int) (pow(2,31)-1));
                 listeRAND.add(resRand);
             }
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRAND,32)));

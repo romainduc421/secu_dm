@@ -205,10 +205,10 @@ public class Main {
             System.out.println("Pi = " + Pi);
         }
         double pValue = erfc(abs(Vn_obs - 2.0 * taille * Pi *(1.0 - Pi)) / (2.0 * sqrt(taille) * Pi * (1.0 - Pi)) /sqrt(2));
-        if(pValue < 0.01)
-            System.out.println("runs failed");
-        else
+        if(pValue >= 0.01)
             System.out.println("runs passed");
+        else
+            System.out.println("runs failed");
         return pValue;
     }
 

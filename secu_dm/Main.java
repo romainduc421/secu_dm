@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +18,8 @@ public class Main {
     static int sVN = 5;
     static int sSTM = 5;
     static int sRANDU = 5;
+    public static int cpt=0;
+    public static boolean ontime=false;
 
     /**
      * Cette fonction applique l'algorithme de Von Neumann à un entier. Elle prends une graine en entrée et retourne
@@ -65,6 +68,10 @@ public class Main {
         /* a = 65539, b = 0, m = 2^31 - 1 */
         res = Math.floorMod(graine*65539, (int)Math.pow(2, 31)); // %2^31 = 2 147 483 648
         return res;
+    }
+
+    public static int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
     }
 
     /**
@@ -117,22 +124,37 @@ public class Main {
             }
         }
         /* Calcul de SN */
-        int sn = 0;
+        int sn = 0, ones=0, zeroes=0;
         /* Si le bit est un 1, on fait +1, sinon on fait -1 */
         for (Boolean b:epsilon) {
             if(b){
                 sn++;
+                ones+=1;
             } else {
                 sn--;
+                zeroes+=1;
             }
+        }
+        /*if (cpt==3 && !ontime) {
+            System.out.println(Arrays.toString(epsilon.toArray()));
+            ontime = true;
+        }*/
+        if(cpt==3 )
+        {
+            System.out.println(" Ones count = "+ones);
+            System.out.println(" zeroes count =  "+zeroes);
+            //ontime = true;
         }
         /* Calcul de sobs */
         double sobs = abs(sn) / sqrt(nb*x.size());
 
-
         /* Calcul de Pvaleur */
         /* double pValue = 2 * (1 - cdf('Normal', sobs)) */
         double pValue = erfc(sobs / sqrt(2.0));
+        if(pValue>=0.01)
+            System.out.println("Monobit test passed");
+        else
+            System.out.println("Monobit test failed");
         return pValue;
         //return sobs;
     }
@@ -144,7 +166,7 @@ public class Main {
         /* String contenant la convertion en binaire de nb Bits */
         String mot;
         if(x.isEmpty()){
-            System.err.println("MonobitFrequencyTest : first arg's wrong");
+            System.err.println("RunsTest : first arg's wrong");
             return -1.0;
         }
         /* Pour chaque Integer i du vecteur x */
@@ -182,7 +204,12 @@ public class Main {
             System.out.println("V" + taille + "_obs = " + Vn_obs);
             System.out.println("Pi = " + Pi);
         }
-        return erfc(abs(Vn_obs - 2.0 * taille * Pi *(1.0 - Pi)) / (2.0 * sqrt(taille) * Pi * (1.0 - Pi)) /sqrt(2));
+        double pValue = erfc(abs(Vn_obs - 2.0 * taille * Pi *(1.0 - Pi)) / (2.0 * sqrt(taille) * Pi * (1.0 - Pi)) /sqrt(2));
+        if(pValue < 0.01)
+            System.out.println("runs failed");
+        else
+            System.out.println("runs passed");
+        return pValue;
     }
 
     public static double frequencyVN(ArrayList<Integer> x, int nb){
@@ -232,7 +259,8 @@ public class Main {
         ArrayList<Double> listeExp = new ArrayList<>();
         /* Generateur Random de Java*/
         int resRand;
-        Random rand = new Random();
+
+        //Random rand = new Random(55L);
         double resExp;
 
         /* Test visuel pour 1 000 valeurs */
@@ -248,7 +276,8 @@ public class Main {
             sRANDU = randu(sRANDU);
             listeRANDU.add(sRANDU);
             /* RAND JAVA */
-            resRand = rand.nextInt((int) Math.pow(2,31));
+            //resRand = rand.nextInt((int) Math.pow(2,31));
+            resRand = getRandomNumber(0, (int) (pow(2,31)-1));
             listeRAND.add(resRand);
             /* Exp */
             resExp = exponentielle(0.35);
@@ -260,7 +289,7 @@ public class Main {
         System.out.println("RANDU: \n"+listeRANDU+"\n");
         System.out.println("RAND: \n"+listeRAND+"\n");
         System.out.println("EXP: \n"+listeExp+"\n");
-
+        cpt=0;
         System.out.println("********* VonNeumann **********");
         for(int k=0; k<100; k++)
         {
@@ -273,7 +302,9 @@ public class Main {
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,14)));
             System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,14)));
             //2^(13.2877124) = 10 000
+
         }
+        cpt++;
 
         System.out.println("********* Standard Minimal **********");
         for(int k=0; k<100; k++)
@@ -287,6 +318,7 @@ public class Main {
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,32)));
             System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,32)));
         }
+        cpt++;
 
         System.out.println("********* RANDU **********");
         for(int k=0; k<100; k++)
@@ -300,6 +332,7 @@ public class Main {
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRANDU,32)));
             System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRANDU,32)));
         }
+        cpt++;
 
         System.out.println("********* RAND **********");
         for(int k=0; k<100; k++)
@@ -307,20 +340,25 @@ public class Main {
             System.out.println("\n ---- Iteration "+k+" ----");
             listeRAND.removeAll(listeRAND);
             for(int l=0; l<1000; l++) {
-                resRand = rand.nextInt((int) Math.pow(2,31));
+                //resRand = rand.nextInt((int) Math.pow(2,31));
+                resRand = getRandomNumber(0, (int) (pow(2,31)-1));
                 listeRAND.add(resRand);
             }
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRAND,32)));
             System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRAND,32)));
+
         }
+        cpt++;
 
         ArrayList<Integer> test = new ArrayList<>();
         test.add(725);  //1011010101
+        System.out.println("\n");
         double restest = frequency(test,10);
         System.out.println("\n\nTest de l'enonce freqency : "+(new DecimalFormat("0.0000000")).format(restest));
 
         test.removeAll(test);
         test.add(619);  //1001101011
+        System.out.println("\n");
         System.out.println("\n\nTest de l'enonce runs : "+(new DecimalFormat("0.0000000")).format(runs(test,10)));
 
     }

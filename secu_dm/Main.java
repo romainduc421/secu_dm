@@ -1,13 +1,9 @@
 package secu_dm;
 
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.*;
@@ -19,7 +15,6 @@ public class Main {
     static int sSTM = 5;
     static int sRANDU = 5;
     public static int cpt=0;
-    //public static boolean ontime=false;
 
     /**
      * Cette fonction applique l'algorithme de Von Neumann à un entier. Elle prends une graine en entrée et retourne
@@ -68,10 +63,6 @@ public class Main {
         /* a = 65539, b = 0, m = 2^31 - 1 */
         res = Math.floorMod(graine*65539, (int)Math.pow(2, 31)); // %2^31 = 2 147 483 648
         return res;
-    }
-
-    public static int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
     }
 
     /**
@@ -135,28 +126,15 @@ public class Main {
                 zeroes+=1;
             }
         }
-        /*if (cpt==3 && !ontime) {
-            System.out.println(Arrays.toString(epsilon.toArray()));
-            ontime = true;
-        }*/
-        if(cpt==3 )
-        {
-            System.out.println(" Ones count = "+ones);
-            System.out.println(" zeroes count =  "+zeroes);
-            //ontime = true;
-        }
         /* Calcul de sobs */
         double sobs = abs(sn) / sqrt(nb*x.size());
-
         /* Calcul de Pvaleur */
-        /* double pValue = 2 * (1 - cdf('Normal', sobs)) */
         double pValue = erfc(sobs / sqrt(2.0));
         if(pValue>=0.01)
             System.out.println("Monobit test passed");
         else
             System.out.println("Monobit test failed");
         return pValue;
-        //return sobs;
     }
 
     public static double runs(ArrayList<Integer> x, int nb)
@@ -212,24 +190,6 @@ public class Main {
         return pValue;
     }
 
-    public static double frequencyVN(ArrayList<Integer> x, int nb){
-        /*int i,j;
-        double p_value, sobs;
-        int s=0;
-        int bit, word;
-        for(i=0; i<x.size(); i++){
-            word = x.get(i);
-            for (j=0; j<13; j++){       //13
-                bit = word<<(32-j);
-                bit = bit >> 32;
-                s = (int) (s + (2*bit - 1));
-            }
-        }
-        sobs = Math.abs(s) / Math.sqrt((double)nb);
-        p_value = Erf.erfc(sobs / Math.sqrt(2.0d));
-        return p_value;*/return 0.0;
-    }
-
     public static double exponentielle(double lambda) {
         Random rand = new Random();
         return -(1 / lambda) * log(1 - rand.nextDouble());
@@ -277,7 +237,6 @@ public class Main {
             listeRANDU.add(sRANDU);
             /* RAND JAVA */
             resRand = rand.nextInt((int) Math.pow(2,31));
-            //resRand = getRandomNumber(0, (int) (pow(2,31)-1));
             listeRAND.add(resRand);
             /* Exp */
             resExp = exponentielle(0.35);
@@ -290,7 +249,7 @@ public class Main {
         System.out.println("RAND: \n"+listeRAND+"\n");
         System.out.println("EXP: \n"+listeExp+"\n");
         cpt=0;
-        System.out.println("********* VonNeumann **********");
+        System.out.println("\n********* VonNeumann **********");
         for(int k=0; k<100; k++)
         {
             System.out.println("\n ---- Iteration "+k+" ----");
@@ -301,12 +260,10 @@ public class Main {
             }
             System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,14)));
             System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,14)));
-            //2^(13.2877124) = 10 000
-
         }
         cpt++;
 
-        System.out.println("********* Standard Minimal **********");
+        System.out.println("\n********* Standard Minimal **********");
         for(int k=0; k<100; k++)
         {
             System.out.println("\n ---- Iteration "+k+" ----");
@@ -315,12 +272,12 @@ public class Main {
                 sSTM = STM(sSTM);
                 listeSTM.add(sSTM);
             }
-            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,32)));
-            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,32)));
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,31)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,31)));
         }
         cpt++;
 
-        System.out.println("********* RANDU **********");
+        System.out.println("\n********* RANDU **********");
         for(int k=0; k<100; k++)
         {
             System.out.println("\n ---- Iteration "+k+" ----");
@@ -329,23 +286,22 @@ public class Main {
                 sRANDU = randu(sRANDU);
                 listeRANDU.add(sRANDU);
             }
-            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRANDU,32)));
-            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRANDU,32)));
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRANDU,31)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRANDU,31)));
         }
         cpt++;
 
-        System.out.println("********* RAND **********");
+        System.out.println("\n********* RAND **********");
         for(int k=0; k<100; k++)
         {
             System.out.println("\n ---- Iteration "+k+" ----");
             listeRAND.removeAll(listeRAND);
             for(int l=0; l<1000; l++) {
-                resRand = rand.nextInt((int) Math.pow(2,31));
-                //resRand = getRandomNumber(0, (int) (pow(2,31)-1));
+                resRand = rand.nextInt((int) Math.pow(2,47));
                 listeRAND.add(resRand);
             }
-            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRAND,32)));
-            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRAND,32)));
+            System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeRAND,31)));
+            System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeRAND,31)));
 
         }
         cpt++;

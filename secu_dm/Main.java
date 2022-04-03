@@ -229,6 +229,7 @@ public class Main {
         double resExp = 0;
         Random rand = new Random();
 
+        System.out.println("Test visuel (voir graphiques): \n");
         /* Test visuel pour 1 000 valeurs */
         for(int i = 0; i<1000;i++){
             /* VonNeuman */
@@ -247,7 +248,15 @@ public class Main {
             resExp = exponentielle(0.35);
             listeExp.add(resExp);
         }
-        System.out.println("Debuts des tests de frequency et run: \n");
+        System.out.println("VonNeumann: "+listeVonNeuman);
+        System.out.println("STM: "+listeSTM);
+        System.out.println("RANDU: "+listeRANDU);
+        System.out.println("RAND: "+listeRAND);
+        System.out.println("EXP: "+listeExp);
+
+
+
+        System.out.println("\n\nDebuts des tests de frequency et run: \n");
         System.out.println("\n********* VonNeumann **********");
         for(int k=0; k<100; k++)
         {
@@ -258,8 +267,8 @@ public class Main {
             }
             if(k<5){
                 System.out.println("\n ---- Iteration "+k+" ----");
-                System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeSTM,14)));
-                System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeSTM,14)));
+                System.out.println("monobit freq : p_value = "+(new DecimalFormat("0.0000000")).format(frequency(listeVonNeuman,14)));
+                System.out.println("runs : p_value = "+(new DecimalFormat("0.0000000")).format(runs(listeVonNeuman,14)));
             }
         }
 

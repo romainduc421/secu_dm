@@ -10,11 +10,6 @@ import static java.lang.Math.*;
 import static org.apache.commons.math3.special.Erf.erfc;
 
 public class Main {
-
-    static int sVN = 5;
-    static int sSTM = 5;
-    static int sRANDU = 5;
-
     /**
      * Cette fonction applique l'algorithme de Von Neumann à un entier. Elle prends une graine en entrée et retourne
      * l'entier correspondant en sortie.
